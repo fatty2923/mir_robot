@@ -118,8 +118,8 @@ controller_server:
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.1                  # CHANGED # was: 0.1
     progress_checker_plugin: "progress_checker"
-    # goal_checker_plugins: ["general_goal_checker", "stopped_goal_checker"] # "precise_goal_checker"
-    goal_checker_plugins: ["stopped_goal_checker"] # "precise_goal_checker"
+    # goal_checker_plugins: ["general_goal_checker", "stopped_goal_checker", "precise_goal_checker"]
+    goal_checker_plugins: ["stopped_goal_checker"]
     controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
@@ -127,12 +127,14 @@ controller_server:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.20        # CHANGED # was: 0.5
       movement_time_allowance: 7.0          # CHANGED # was: 10.0
+
     # Goal checker parameters
-    #precise_goal_checker:
+    # precise_goal_checker:
     #  plugin: "nav2_controller::SimpleGoalChecker"
     #  xy_goal_tolerance: 0.25
     #  yaw_goal_tolerance: 0.25
     #  stateful: True
+
     # general_goal_checker:
     #   stateful: True
     #   plugin: "nav2_controller::SimpleGoalChecker"
@@ -143,9 +145,9 @@ controller_server:
       plugin: "nav2_controller::StoppedGoalChecker"
       stateful: True
       xy_goal_tolerance: 0.27          # a hair looser than 0.25
-      yaw_goal_tolerance: 0.35          # ~20°, avoids dithering in tight spots
-      trans_stopped_velocity: 0.25      # match DWB stop logic
-      rot_stopped_velocity: 0.15
+      yaw_goal_tolerance: 0.25          # avoids dithering in tight spots
+      trans_stopped_velocity: 0.05      # match DWB stop logic
+      rot_stopped_velocity: 0.1         # was: 0.05
 
     # DWB parameters
     FollowPath:
@@ -173,7 +175,7 @@ controller_server:
       angular_granularity: 0.025
       transform_tolerance: 0.2
       xy_goal_tolerance: 0.25               # CHANGED # was: 0.25
-      trans_stopped_velocity: 0.25          # CHANGED # was: 0.25
+      trans_stopped_velocity: 0.05          # CHANGED # was: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
 
