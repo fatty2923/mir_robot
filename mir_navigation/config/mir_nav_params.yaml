@@ -144,8 +144,8 @@ controller_server:
     stopped_goal_checker:
       plugin: "nav2_controller::StoppedGoalChecker"
       stateful: True
-      xy_goal_tolerance: 0.27          # a hair looser than 0.25
-      yaw_goal_tolerance: 0.25          # avoids dithering in tight spots
+      xy_goal_tolerance: 0.27          # was: 0.25, a little loose on position
+      yaw_goal_tolerance: 0.25          # was: 0.35 => avoids dithering in tight spots
       trans_stopped_velocity: 0.05      # match DWB stop logic
       rot_stopped_velocity: 0.1         # was: 0.05
 
