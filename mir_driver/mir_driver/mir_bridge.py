@@ -84,6 +84,32 @@ def _convert_ros_time(time_msg_dict, to_ros2):
     return time_dict
 
 
+def _convert_ros_header_recursive(header_msg_dict: dict, to_ros2: bool) -> dict:
+    if not isinstance(header_msg_dict, dict):
+        return header_msg_dict
+    filtered_msg_dict = copy.deepcopy(header_msg_dict)
+    for (key, value) in filtered_msg_dict.items():
+        if key == 'header':
+            try:
+                value['stamp'] = _convert_ros_time(value['stamp'], to_ros2)
+                if to_ros2:
+                    del value['seq']
+                    frame_id = value['frame_id'].strip('/')
+                    value['frame_id'] = tf_prefix + frame_id
+                else:
+                    value['seq'] = 0
+            except (TypeError, KeyError):
+                pass   # value is not a dict or doesn't have key 'frame_id' or 'stamp'
+        elif isinstance(value, dict):
+            filtered_msg_dict[key] = _convert_ros_header_recursive(value, to_ros2)
+        elif isinstance(value, list):
+            new_list = []
+            for item in value:
+                new_list.append(_convert_ros_header_recursive(item, to_ros2))
+            filtered_msg_dict[key] = new_list
+    return filtered_msg_dict
+
+
 def _convert_ros_header(header_msg_dict, to_ros2):
     header_dict = copy.deepcopy(header_msg_dict)
     header_dict['stamp'] = _convert_ros_time(header_dict['stamp'], to_ros2)
@@ -295,7 +321,8 @@ PUB_TOPICS = [
     # TopicConfig('robot_status', mir_msgs.msg.RobotStatus),
     # TopicConfig('/rosout', rosgraph_msgs.msg.Log),
     # TopicConfig('/rosout_agg', rosgraph_msgs.msg.Log),
-    # TopicConfig('scan', sensor_msgs.msg.LaserScan),
+    TopicConfig('scan', sensor_msgs.msg.LaserScan, dict_filter=_convert_ros_header_recursive,
+                qos_profile=qos_profile_sensor_data), #################################################### CHECK
     # TopicConfig('scan_filter/parameter_descriptions', dynamic_reconfigure.msg.ConfigDescription),
     # TopicConfig('scan_filter/parameter_updates', dynamic_reconfigure.msg.Config),
     # TopicConfig('scan_filter/visualization_marker', visualization_msgs.msg.Marker),
