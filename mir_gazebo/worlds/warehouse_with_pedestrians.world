@@ -2042,14 +2042,13 @@
 			<model>turtlebot3_waffle</model>
 		</ignore_obstacles>
 		<trajectory>
-      <cyclic>true</cyclic>
-			<waypoint>3 2 1</waypoint>
-			<waypoint>3 -8 1</waypoint>
+			<goalpoint>3 2 1 0 0 0</goalpoint>
+			<goalpoint>3 -8 1 0 0 0</goalpoint>
 		</trajectory>
 	</plugin>
-	<!-- <plugin name="pedestrian_visual" filename="libPedestrianVisualPlugin.so">
+	<plugin name="pedestrian_visual" filename="libPedestrianVisualPlugin.so">
 		<update_rate>5</update_rate>
-	</plugin> -->
+	</plugin>
 </actor>
 <actor name="human_2">
 	<pose>-0.5 -8.5 1 0 0 0</pose>
@@ -2063,7 +2062,7 @@
 		<interpolate_x>true</interpolate_x>
 	</animation>
 	<plugin name="human_2_plugin" filename="libPedestrianSFMPlugin.so">
-		<collision scale="0.01 0.001 0.001">LHipJoint_LeftUpLeg_collision</collision>
+    <collision scale="0.01 0.001 0.001">LHipJoint_LeftUpLeg_collision</collision>
 		<collision scale="8.0 8.0 1.0">LeftUpLeg_LeftLeg_collision</collision>
 		<collision scale="10.0 10.0 1.5">LeftLeg_LeftFoot_collision</collision>
 		<collision scale="4.0 4.0 1.5">LeftFoot_LeftToeBase_collision</collision>
@@ -2099,9 +2098,8 @@
 			<model>turtlebot3_waffle</model>
 		</ignore_obstacles>
 		<trajectory>
-      <cyclic>true</cyclic>
-			<waypoint>-0.5 -8.5 1</waypoint>
-			<waypoint>-9 2.5 1</waypoint>
+			<goalpoint>-0.5 -8.5 1 0 0 0</goalpoint>
+			<goalpoint>-9 2.5 1 0 0 0</goalpoint>
 		</trajectory>
 	</plugin>
 </actor>
@@ -2117,7 +2115,7 @@
 		<interpolate_x>true</interpolate_x>
 	</animation>
 	<plugin name="human_3_plugin" filename="libPedestrianSFMPlugin.so">
-		<collision scale="0.01 0.001 0.001">LHipJoint_LeftUpLeg_collision</collision>
+    <collision scale="0.01 0.001 0.001">LHipJoint_LeftUpLeg_collision</collision>
 		<collision scale="8.0 8.0 1.0">LeftUpLeg_LeftLeg_collision</collision>
 		<collision scale="10.0 10.0 1.5">LeftLeg_LeftFoot_collision</collision>
 		<collision scale="4.0 4.0 1.5">LeftFoot_LeftToeBase_collision</collision>
@@ -2153,9 +2151,8 @@
 			<model>turtlebot3_waffle</model>
 		</ignore_obstacles>
 		<trajectory>
-      <cyclic>true</cyclic>
-			<waypoint>-3.5 -8.5 1</waypoint>
-			<waypoint>-3.5 8.5 1</waypoint>
+			<goalpoint>-3.5 -8.5 1 0 0 0</goalpoint>
+			<goalpoint>-3.5 8.5 1 0 0 0</goalpoint>
 		</trajectory>
 	</plugin>
 </actor>
