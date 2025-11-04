@@ -321,7 +321,7 @@ PUB_TOPICS = [
     # TopicConfig('robot_status', mir_msgs.msg.RobotStatus),
     # TopicConfig('/rosout', rosgraph_msgs.msg.Log),
     # TopicConfig('/rosout_agg', rosgraph_msgs.msg.Log),
-    TopicConfig('scan', sensor_msgs.msg.LaserScan, dict_filter=_convert_ros_header_recursive,
+    TopicConfig('scan', LaserScan, dict_filter=_laser_scan_filter,
                 qos_profile=qos_profile_sensor_data), #################################################### CHECK
     # TopicConfig('scan_filter/parameter_descriptions', dynamic_reconfigure.msg.ConfigDescription),
     # TopicConfig('scan_filter/parameter_updates', dynamic_reconfigure.msg.Config),
