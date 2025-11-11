@@ -20,10 +20,16 @@ find_package(ament_cmake REQUIRED)
 find_package(navigation2)
 find_package(slam_toolbox)
 
-
+# Install resource directories
 install(DIRECTORY
   config launch rviz maps behavior_trees
   DESTINATION share/${PROJECT_NAME}
+)
+
+# Install Python executable(s)
+install(PROGRAMS
+  scripts/nearest_obstacle_distance.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

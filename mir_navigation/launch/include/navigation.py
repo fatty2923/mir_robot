@@ -90,7 +90,7 @@ def generate_launch_description():
 
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(mir_nav_dir, 'config', 'mir_nav_params.yaml'),
+        default_value=os.path.join(mir_nav_dir, 'config', 'mir_nav_params_3.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
 
     declare_autostart_cmd = DeclareLaunchArgument(

@@ -31,7 +31,7 @@ mobile_base_controller:
   linear:
     x:
       has_velocity_limits    : true
-      max_velocity           : 1.0  # m/s; move_base max_vel_x: 0.8
+      max_velocity           : 1.5  # m/s; move_base max_vel_x: 0.8
       has_acceleration_limits: true
       max_acceleration       : 2.0  # m/s^2; move_base acc_lim_x: 1.5
   angular:

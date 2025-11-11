@@ -15,6 +15,8 @@ slam_toolbox:
     base_frame: base_footprint
     scan_topic: /scan
     mode: mapping #localization
+    # use_odometry: true            # <— add (explicit)
+    # publish_tf: true              # <— mapping owns map->odom
 
     # if you'd like to immediately start continuing a map at a given pose
     # or at the dock, but they are mutually exclusive, if pose is given

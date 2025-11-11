@@ -12,7 +12,7 @@ import mir_driver.rosbridge
 from rclpy_message_converter import message_converter
 from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, Imu
 from tf2_msgs.msg import TFMessage
 from std_srvs.srv import Trigger
 
@@ -58,6 +58,41 @@ def _laser_scan_filter(msg_dict, to_ros2):
     filtered_msg_dict['header'] = _convert_ros_header(
         filtered_msg_dict['header'], to_ros2)
     return filtered_msg_dict
+
+
+def _imu_dict_filter(msg_dict, to_ros2):
+    """
+    Normalize IMU message dictionary when bridging:
+    - convert header.stamp (secs/nsecs <-> sec/nanosec)
+    - prepend tf_prefix to header.frame_id when going to ROS 2
+    - (optional) enforce a stable frame_id for IMU
+    """
+    filtered = copy.deepcopy(msg_dict)
+
+    # Convert header (time + frame_id prefixing)
+    try:
+        filtered['header'] = _convert_ros_header(filtered['header'], to_ros2)
+    except (KeyError, TypeError):
+        pass
+
+    # OPTIONAL: force a consistent IMU frame if MiR leaves it blank or inconsistent
+    # Choose the one your TF tree actually has (imu_link or base_imu, etc.).
+    # Comment out if you don't want to override.
+    desired_frame = (tf_prefix + 'imu_link') if to_ros2 else 'imu_link'
+    try:
+        if not filtered['header'].get('frame_id') or filtered['header']['frame_id'] in ['', '/', tf_prefix]:
+            filtered['header']['frame_id'] = desired_frame
+    except Exception:
+        pass
+
+    # OPTIONAL: guard against malformed covariances (must be 9 elements each)
+    for key in ('orientation_covariance', 'angular_velocity_covariance', 'linear_acceleration_covariance'):
+        cov = filtered.get(key)
+        if isinstance(cov, list) and len(cov) != 9:
+            # pad/truncate to length 9
+            filtered[key] = (cov + [0.0]*9)[:9]
+
+    return filtered
 
 
 def _map_dict_filter(msg_dict, to_ros2):
@@ -192,7 +227,8 @@ PUB_TOPICS = [
     # TopicConfig('SickPLC/parameter_updates', dynamic_reconfigure.msg.Config),
     # TopicConfig('active_mapping_guid', std_msgs.msg.String),
     # TopicConfig('amcl_pose', geometry_msgs.msg.PoseWithCovarianceStamped),
-    # TopicConfig('b_raw_scan', sensor_msgs.msg.LaserScan),
+    # TopicConfig('b_raw_scan', LaserScan, dict_filter=_laser_scan_filter,
+    #             qos_profile=qos_profile_sensor_data),
     TopicConfig('b_scan', LaserScan, dict_filter=_laser_scan_filter,
                 qos_profile=qos_profile_sensor_data),
     # TopicConfig('camera_floor/background', sensor_msgs.msg.PointCloud2),
@@ -213,10 +249,11 @@ PUB_TOPICS = [
     # TopicConfig('diagnostics', diagnostic_msgs.msg.DiagnosticArray),
     # TopicConfig('diagnostics_agg', diagnostic_msgs.msg.DiagnosticArray),
     # TopicConfig('diagnostics_toplevel_state', diagnostic_msgs.msg.DiagnosticStatus),
-    # TopicConfig('f_raw_scan', sensor_msgs.msg.LaserScan),
+    # TopicConfig('f_raw_scan', LaserScan, dict_filter=_laser_scan_filter,
+    #             qos_profile=qos_profile_sensor_data),
     TopicConfig('f_scan', LaserScan, dict_filter=_laser_scan_filter,
                 qos_profile=qos_profile_sensor_data),
-    # TopicConfig('imu_data', sensor_msgs.msg.Imu),
+    TopicConfig('imu_data', Imu, dict_filter=_imu_dict_filter),
     # TopicConfig('laser_back/driver/parameter_descriptions',
     #   dynamic_reconfigure.msg.ConfigDescription),
     # TopicConfig('laser_back/driver/parameter_updates', dynamic_reconfigure.msg.Config),
@@ -310,7 +347,7 @@ PUB_TOPICS = [
     # TopicConfig('move_base_node/visualization_marker', visualization_msgs.msg.Marker),
     # TopicConfig('move_base_simple/visualization_marker', visualization_msgs.msg.Marker),
     TopicConfig('odom', Odometry, dict_filter=_odom_dict_filter),
-    # TopicConfig('odom_enc', nav_msgs.msg.Odometry),
+    # TopicConfig('odom_enc', Odometry, dict_filter=_odom_dict_filter),
     # TopicConfig('one_way_map', nav_msgs.msg.OccupancyGrid),
     # TopicConfig('param_update', std_msgs.msg.String),
     # TopicConfig('particlevizmarker', visualization_msgs.msg.MarkerArray),
