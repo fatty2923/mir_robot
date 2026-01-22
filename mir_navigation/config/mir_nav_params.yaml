@@ -207,9 +207,11 @@ local_costmap:
       # offset: front / back from base_link
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       # footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
-      # add 5cm safety to robot body
-      footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
-      footprint_padding: 0.01
+      # footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]' # real dimensions of MiR100
+      # footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
+      # footprint_padding: 0.01
+      footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]'
+      footprint_padding: 0.00
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -251,9 +253,11 @@ global_costmap:
       # offset: front / back from base_link
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       # footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
-      # add 5cm safety to robot body
-      footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
-      footprint_padding: 0.01
+      # footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]' # real dimensions of MiR100
+      # footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
+      # footprint_padding: 0.01
+      footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]'
+      footprint_padding: 0.00
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]

@@ -111,9 +111,14 @@ def generate_launch_description():
     spawn_robot = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-entity', LaunchConfiguration('robot_name'),
-                   '-topic', 'robot_description',
-                   '-b'],  # bond node to gazebo model,
+        arguments=[
+            '-entity', LaunchConfiguration('robot_name'),
+            '-topic', 'robot_description',
+            '-b',  # bond node to gazebo model
+            '-x', LaunchConfiguration('robot_x'),
+            '-y', LaunchConfiguration('robot_y'),
+            '-Y', LaunchConfiguration('robot_yaw'),
+        ],
         namespace=LaunchConfiguration('namespace'),
         output='screen')
 

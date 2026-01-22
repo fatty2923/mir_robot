@@ -112,7 +112,7 @@ bt_navigator_navigate_to_pose_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 20.0
+    controller_frequency: 20.0  #20.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001        # CHANGED (diff-drive)  # was: 0.5
     min_theta_velocity_threshold: 0.001
@@ -153,6 +153,143 @@ controller_server:
 
     # DWB parameters
     FollowPath:
+      # plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+
+      # # --- Main speed targets (match DWB dynamics) ---
+      # desired_linear_vel: 1.0             # ≈ max_vel_x
+      # max_linear_accel: 1.5               # ≈ acc_lim_x
+      # max_linear_decel: 1.6               # ≈ |decel_lim_x|
+      # max_angular_vel: 1.2                # ≈ max_vel_theta
+
+      # # --- Lookahead: path-hugging vs smoothness ---
+      # lookahead_dist: 0.8                 # main lookahead at nominal speed
+      # min_lookahead_dist: 0.35            # similar to forward_point_distance 0.35
+      # max_lookahead_dist: 1.2             # a bit ahead at high speed
+      # lookahead_time: 1.2                 # consistent with 1.2 s sim horizon
+
+      # use_interpolation: True             # smoother tracking
+
+      # # --- Rotation / heading behavior ---
+      # use_rotate_to_heading: True
+      # rotate_to_heading_angular_vel: 1.0  # close to max_vel_theta but a bit conservative
+      # min_approach_linear_velocity: 0.05  # match trans_stopped_velocity of 0.05
+
+      # transform_tolerance: 0.2
+
+      # # --- Regulation near obstacles & curvature ---
+      # use_regulated_linear_velocity_scaling: True
+      # use_cost_regulated_linear_velocity_scaling: True
+      # regulated_linear_scaling_min_radius: 1.0    # tighten for sharp turns at speed
+      # regulated_linear_scaling_min_velocity: 0.25 # don’t crawl too much
+      # cost_scaling_dist: 0.5                      # starts slowing when near inflated costs
+      # inflation_cost_scaling_factor: 3.0          # how fast we slow when costs rise
+
+      # # --- Collision prediction ---
+      # use_collision_detection: True
+      # max_allowed_time_to_collision: 1.0          # at 1.0 m/s, ~1 m reaction window
+      # use_approach_linear_velocity_scaling: True
+
+      # # --- Direction / driving mode ---
+      # allow_reversing: False                      # DWB config uses only forward velocities
+
+      # # --- Path search limit ---
+      # max_robot_pose_search_dist: 10.0
+
+
+      # plugin: "nav2_mppi_controller::MPPIController"
+      
+      # # Core MPPI parameters matching your performance needs
+      # time_steps: 24                     # 24 = 1.2s * 20 at 20Hz (was: 1.2 sim_time in DWB)
+      # model_dt: 0.05                     # 0.05 = 1/20Hz control rate
+      # batch_size: 1500                   # Balanced performance
+      # iteration_count: 1
+      # prune_distance: 2.0
+      # transform_tolerance: 0.2
+      # temperature: 0.25
+      # gamma: 0.02
+      
+      # # Velocity constraints from your DWB config
+      # vx_max: 1.0                        # CHANGED # was: 0.26
+      # vx_min: 0.0
+      # vy_max: 0.0
+      # vy_min: 0.0
+      # wz_max: 1.2                        # CHANGED # was: 1.0
+      
+      # # Sampling noise
+      # vx_std: 0.5
+      # vy_std: 0.0
+      # wz_std: 0.6
+      
+      # # Motion model
+      # motion_model: "DiffDrive"          # Adjust based on your robot
+      # visualize: true                    # Similar to debug_trajectory_details
+      
+      # # Corrected critics list - using available critics
+      # critics: ["ConstraintCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "ObstaclesCritic", "PreferForwardCritic"]
+      
+      # # Constraint critic
+      # ConstraintCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 2.0
+      
+      # # Goal critics - mapped from GoalAlign and GoalDist
+      # GoalCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 24.0                # Similar to GoalDist.scale: 24.0
+      #   threshold_to_consider: 1.5
+      
+      # GoalAngleCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 24.0                # Similar to GoalAlign.scale: 24.0
+      #   threshold_to_consider: 0.35      # Similar to forward_point_distance: 0.35
+      
+      # # Path following critics - mapped from PathAlign and PathDist
+      # PathAlignCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 32.0                # Similar to PathAlign.scale: 32.0
+      #   max_path_occupancy_ratio: 0.05
+      #   trajectory_point_step: 3
+      #   threshold_to_consider: 0.35      # Similar to forward_point_distance: 0.35
+      #   offset_from_furthest: 15
+      #   use_path_orientations: false
+      
+      # PathFollowCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 24.0                # Similar to PathDist.scale: 24.0
+      #   offset_from_furthest: 10
+      #   threshold_to_consider: 1.5
+      
+      # # CORRECTED: Obstacle critic - using available ObstaclesCritic
+      # ObstaclesCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 0.02                # Similar to BaseObstacle.scale: 0.02
+      #   repulsion_weight: 0.02           # Additional parameter for obstacles
+      #   critical_weight: 10.0            # For critical obstacles
+      #   consider_footprint: true         # Use robot footprint like ObstacleFootprint in DWB
+      #   collision_cost: 100000.0
+      #   collision_margin_distance: 0.05
+      #   near_goal_distance: 0.5
+      
+      # # Rotation to goal behavior - mapped from RotateToGoal
+      # PreferForwardCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 20.0                # Similar to RotateToGoal.scale: 20.0
+      #   threshold_to_consider: 0.5
+      #   forward_preference: true
+      
+      # # Visualization settings
+      # TrajectoryVisualizer:
+      #   trajectory_step: 4
+      #   time_step: 2
+
+
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
       min_vel_x: 0.0
@@ -173,7 +310,6 @@ controller_server:
       vy_samples: 1                         # CHANGED # was: 5
       vtheta_samples: 28                    # CHANGED # was: 20
       sim_time: 1.2                         # CHANGED # was: 1.7
-      # forward_prune_distance: 5.0            # NEW: 5-15m for best with 1.0 m/s
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
@@ -212,6 +348,7 @@ local_costmap:
       # footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
       # add 5cm safety to robot body
       footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
+      # footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]'
       footprint_padding: 0.01
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
@@ -254,9 +391,11 @@ global_costmap:
       # offset: front / back from base_link
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       # footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
-      # add 5cm safety to robot body
+      # footprint: '[ [0.48, 0.3], [0.48, -0.3], [-0.48, -0.3], [-0.48, 0.3] ]'
       footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
       footprint_padding: 0.01
+      # footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]'
+      footprint_padding: 0.00
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -302,8 +441,26 @@ planner_server:
   ros__parameters:
     expected_planner_frequency: 10.0        # CHANGED # was: 20.0
     use_sim_time: True
-    planner_plugins: ["GridBased"]
+    planner_plugins: ["GridBased"]   # add "AStar", "HybridAStar" later
+
     GridBased:
+      # plugin: "nav2_path_planners/ACOGlobalPlanner"
+      # obstacle_factor: 1.0
+      # n_ants: 32
+      # n_inherited: 8
+      # point_num: 8
+      # alpha: 1.0
+      # beta: 3.0
+      # rho: 0.1
+      # Q: 100.0
+      # init_mode: 1     # 1 = RANDOM (let it explore whole costmap)
+      # max_iter: 40
+
+      # plugin: "nav2_path_planner/RRTGlobalPlanner"
+      # obstacle_factor: 1.0
+      # sample_num: 2000
+      # max_dist: 6.0
+
       # Prefer Smac2D for better paths
       plugin: "nav2_smac_planner/SmacPlanner2D"   # CHANGED # was: "nav2_navfn_planner/NavfnPlanner"
       tolerance: 0.25                         # CHANGED # was: 0.5
@@ -316,6 +473,27 @@ planner_server:
       use_quadratic_cost_penalty: True        # NEW
       cost_travel_multiplier: 2.0             # NEW
       smooth_path: True                       # NEW
+
+      # plugin: "nav2_navfn_planner/NavfnPlanner"
+      # tolerance: 0.3               # a bit looser than Smac to avoid failure at tight spots
+      # use_astar: false             # <-- DIJKSTRA / uniform-cost search
+      # allow_unknown: false         # avoids unknown entirely -> safer, more failures in sparse maps
+
+      # plugin: "nav2_navfn_planner/NavfnPlanner"
+      # tolerance: 0.25              # match Smac so metrics are comparable
+      # use_astar: true              # <-- A* instead of Dijkstra
+      # allow_unknown: true          # allow unknown, more aggressive
+
+      # plugin: "nav2_theta_star_planner/ThetaStarPlanner"
+      # tolerance: 0.25             # same goal tolerance as Smac/A*
+      # allow_unknown: true         # let it consider unknown space
+      # max_iterations: 80000       # high enough, but lower than Smac for clearer timing differences
+      # # The parameters below are typical knobs; names can differ by Nav2 version.
+      # # If some are not recognized, Nav2 will just warn and ignore them.
+      # how_many_poses_look_ahead: 1    # aggressive shortcutting
+      # weight_heuristic: 1.0           # pure Euclidean heuristic
+      # weight_traversal_cost: 1.5      # still consider costmap values
+      # minimum_distance_from_obstacle: 0.15  # keep a bit of margin from obstacles
 
 smoother_server:
   ros__parameters:
@@ -370,7 +548,7 @@ waypoint_follower:
 velocity_smoother:
   ros__parameters:
     use_sim_time: True
-    smoothing_frequency: 20.0
+    smoothing_frequency: 20.0   # 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
     # Mirror controller limits

@@ -112,7 +112,7 @@ bt_navigator_navigate_to_pose_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 20.0          # CHANGED # was: 20.0
+    controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001        # CHANGED (diff-drive)  # was: 0.5
     min_theta_velocity_threshold: 0.001
@@ -211,8 +211,12 @@ local_costmap:
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       # footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
       # add 5cm safety to robot body
-      footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
-      footprint_padding: 0.01
+      # footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
+      # footprint: '[ [0.5, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.5, 0.3] ]'
+      # footprint: '[[ 0.449,  0.290], [ 0.449, -0.290], [-0.449, -0.290], [-0.449,  0.290]]'
+      # footprint_padding: 0.01
+      footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]'
+      footprint_padding: 0.00
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -255,8 +259,10 @@ global_costmap:
       # footprint: '[ [front, width/2], [back, width/2], [-back, -width/2], [front, -width/2] ]'
       # footprint: '[ [0.5, 0.25], [-0.4, 0.25], [-0.4, -0.25], [0.5, -0.25] ]'
       # add 5cm safety to robot body
-      footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
-      footprint_padding: 0.01
+      # footprint: '[ [0.48, 0.33], [0.48, -0.33], [-0.48, -0.33], [-0.48, 0.33] ]'
+      # footprint_padding: 0.00
+      footprint: '[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]'
+      footprint_padding: 0.00
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -300,15 +306,15 @@ map_saver:
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 12.0        # CHANGED # was: 20.0
+    expected_planner_frequency: 10.0        # CHANGED # was: 12.0
     use_sim_time: True
     planner_plugins: ["GridBased"]
     GridBased:
       # Prefer Smac2D for better paths
       plugin: "nav2_smac_planner/SmacPlanner2D"   # CHANGED # was: "nav2_navfn_planner/NavfnPlanner"
       tolerance: 0.25                         # CHANGED # was: 0.5
-      downsample_costmap: True                # NEW
-      downsampling_factor: 2                  # NEW
+      downsample_costmap: False                # NEW
+      # downsampling_factor: 2                  # NEW
       allow_unknown: true
       max_iterations: 100000                  # NEW
       minimum_turning_radius: 0.0             # NEW (diff drive)

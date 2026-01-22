@@ -17,6 +17,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
+from launch.actions import ExecuteProcess, TimerAction
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable, OpaqueFunction, SetLaunchConfiguration
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
@@ -90,7 +91,7 @@ def generate_launch_description():
 
     declare_params_file_cmd = DeclareLaunchArgument(
         'params_file',
-        default_value=os.path.join(mir_nav_dir, 'config', 'mir_nav_params_3.yaml'),
+        default_value=os.path.join(mir_nav_dir, 'config', 'mir_nav_params_2.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
 
     declare_autostart_cmd = DeclareLaunchArgument(
@@ -122,6 +123,11 @@ def generate_launch_description():
 
     declare_bt_nav_through_cmd = DeclareLaunchArgument(
         'default_nav_through_pose_bt_xml', default_value='')
+
+    declare_set_initial_pose = DeclareLaunchArgument(
+        'set_initial_pose', default_value='true',
+        description='If true, publish an initial pose (0,0,0) to /initialpose once'
+    )
 
     def add_prefix_to_cmd_vel(context):
         topic = context.launch_configurations['cmd_vel_topic']
@@ -292,7 +298,48 @@ def generate_launch_description():
     ld.add_action(declare_cmd_vel_cmd)
     ld.add_action(declare_bt_nav_cmd)
     ld.add_action(declare_bt_nav_through_cmd)
+    ld.add_action(declare_set_initial_pose)
     ld.add_action(OpaqueFunction(function=add_prefix_to_cmd_vel))
+
+    # One-shot initial pose publisher: (x=0, y=0, yaw=0) in frame "map"
+    # Publishes after a short delay so AMCL is running and subscribed.
+    initial_pose_msg = (
+        "{header: {frame_id: map}, "
+        " pose: {pose: {"
+        "   position: {x: 0.0, y: 0.0, z: 0.0}, "
+        "   orientation: {z: 0.0, w: 1.0}"
+        " }, "
+        # 6x6 covariance. Set x,y small; z/roll/pitch huge; yaw small.
+        " covariance: ["
+        " 0.25, 0, 0, 0, 0, 0,"
+        " 0, 0.25, 0, 0, 0, 0,"
+        " 0, 0, 1000000.0, 0, 0, 0,"
+        " 0, 0, 0, 1000000.0, 0, 0,"
+        " 0, 0, 0, 0, 1000000.0, 0,"
+        " 0, 0, 0, 0, 0, 0.0685"
+        " ]}"
+        "}"
+    )
+
+    publish_initial_pose = ExecuteProcess(
+        condition=IfCondition(LaunchConfiguration('set_initial_pose')),
+        cmd=[
+            'ros2', 'topic', 'pub', '-1',
+            '/initialpose',
+            'geometry_msgs/PoseWithCovarianceStamped',
+            initial_pose_msg
+        ],
+        shell=False
+    )
+
+    # Delay a bit to let AMCL start (adjust seconds if needed)
+    delayed_publish_initial_pose = TimerAction(
+        period=0.5,
+        actions=[publish_initial_pose]
+    )
+
+    ld.add_action(delayed_publish_initial_pose)
+
     # Add the actions to launch all of the navigation nodes
     ld.add_action(load_nodes)
     ld.add_action(load_composable_nodes)

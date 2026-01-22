@@ -29,6 +29,13 @@ install(DIRECTORY
 # Install Python executable(s)
 install(PROGRAMS
   scripts/nearest_obstacle_distance.py
+  scripts/follow_waypoints_measure_obstacle.py
+  scripts/follow_waypoints_odom_vel_logger.py
+  scripts/follow_waypoints_planner_logger.py
+  scripts/follow_waypoints_path_error_logger.py
+  scripts/follow_waypoints_controller_logger.py
+  scripts/follow_waypoints_controller_human_logger.py
+
   DESTINATION lib/${PROJECT_NAME}
 )
 
